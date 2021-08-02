@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Entities.Item;
 using Assets.Scripts.Interface;
+using Assets.Scripts.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -246,7 +247,7 @@ namespace Assets.Scripts.Entities.Character
         #endregion
         #region Character Methods
 
-        public virtual int DamageGiven(object CharacterInstance)
+        public virtual int DamageGiven()
         {
             int damageGiven = 0;
             if (Foe == false)
@@ -317,15 +318,44 @@ namespace Assets.Scripts.Entities.Character
 
         #region Attack
 
-        public object TrueDamage(object CharacterInstance, object TargetInstance)
+        public void TrueDamage(object TargetInstance, DamageObject DamageObj)
         {
-            object DamageObject = 0;
-            return DamageObject;
+            Persona target = (Persona)TargetInstance;
+            target.HealthLoss(DamageObj.DamageValue);
         }
 
         public void PhysicalDamage(object CharacterInstance, object TargetInstance)
         {
-            throw new NotImplementedException();
+            int physicalDamage = 0;
+            int shieldcache = 0;
+            int armourcahe = 0;
+
+            Persona Character = (Persona)CharacterInstance;
+            Persona Target = (Persona)TargetInstance;
+            DamageObject hitval = new DamageObject();
+            hitval.DamageTrait = DamageObject.DamageVersion.Physical;
+
+            physicalDamage = Character.DamageGiven();
+            shieldcache = Target.shield;
+            armourcahe = Target.Armour;
+
+            shieldcache -= physicalDamage; Target.shield -= physicalDamage;//this will make shield=0 if the physical damage is too much
+            //the code below ensures that the sheild is removed first
+            if (shieldcache < 0)//this asks if there is no more sheild left
+            {
+                armourcahe += shieldcache;// here the negative value adds with the positive- following negative number addition laws i hope
+                if (armourcahe < 0)//this asks if there is no more armour left
+                {
+                    Target.Armour = 0; // this makes sure armour is zero
+                    hitval.DamageValue = Math.Abs(armourcahe);
+                    Character.TrueDamage(Target, hitval); //This removes the health of the target
+                }
+                else { Target.Armour = armourcahe; }
+            }
+            else
+            {
+                Target.shield = shieldcache;
+            }
         }
 
         public void MagicalDamage(object CharacterInstance, object TargetInstance)

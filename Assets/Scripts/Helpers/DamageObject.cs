@@ -6,7 +6,14 @@ using System.Threading.Tasks;
 
 namespace Assets.Scripts.Helpers
 {
-    class DamageObject
+    public class DamageObject
     {
+
+        public enum DamageVersion
+        {
+            True,Physical,Magical,Balanced
+        }
+        public int DamageValue;
+        public object DamageTrait;
     }
 }

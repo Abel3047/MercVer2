@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,7 +31,7 @@ namespace Assets.Scripts.Interface
 
         void PhysicalDamage(object CharacterInstance, object TargetInstance);
         void MagicalDamage(object CharacterInstance, object TargetInstance);
-        object TrueDamage(object CharacterInstance, object TargetInstance);
+        void TrueDamage(object TargetInstance, DamageObject DamageObj);
         void Drain(object CharacterInstance, object TargetInstance);
         void Ignite(object CharacterInstance, object TargetInstance);
         void Bleed(object CharacterInstance, object TargetInstance);

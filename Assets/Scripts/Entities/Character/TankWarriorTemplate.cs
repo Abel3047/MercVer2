@@ -260,7 +260,7 @@ namespace Assets.Scripts.Entities.Character
             }
             //fire levelIncrease animation
         }
-        public override int DamageGiven(object CharacterInstance)
+        public override int DamageGiven()
         {
             int damageGiven = 0;
             if (Foe == false)
