@@ -54,10 +54,12 @@ namespace Assets.Scripts.Entities.Character
         #endregion
         #region Character Traits
 
+        #region Stats
+
         public virtual string CharacterName { get { return CharacterName; } set { CharacterName = "UnKnown"; } }
         public virtual string CharacterDescription { get { return CharacterDescription; } set { CharacterDescription = "UnKnown"; } } //Here the personality and backstory of a unique character will be defined
         public virtual bool Foe { get { return Foe; } set { Foe = false; } }
-        public virtual int Health 
+        public virtual int Health
         {
             get { return Health; }
             set
@@ -178,27 +180,6 @@ namespace Assets.Scripts.Entities.Character
         public virtual int HitCount { get; set; }
         public virtual int Accuracy { get; set; }
         public bool LowDamage { get; set; }
-
-        /*
-          int Mana
-        {
-            get; set;
-            // We never discussed if Mana was going to be used so I just put it cause, I mean RPG right, we have to nerf the characters somehow right.
-            //Pluss in my head the cards that a character will be able to use from the many cards on deck will be dependant on the amount of mana the individual 
-            //character has currently
-        }
-        int Stamina { get; set; }//I assume the hunger method will affect this trait
-         */
-        //Above is the mana and stamina int
-
-
-        public double PowerBuffPercent { get; set; }
-        public double EvadeBuffPercent { get; set; }
-        public double AgileBUffPercent { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public double HealBuffPercent { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public double counterAttackPercent { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public object ProtectionSponser { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
         public int ExpPoints
         {
             get { return ExpPoints; }
@@ -243,6 +224,57 @@ namespace Assets.Scripts.Entities.Character
             }
         } //This bool is made true when XPIncrease is fired and should be made of when sessionOver is true
         internal int ExperienceLevel { get { return ExperienceLevel; } set { if (ExperienceLevel < 0) ExperienceLevel = 0; } }
+
+        /*
+          int Mana
+        {
+            get; set;
+            // We never discussed if Mana was going to be used so I just put it cause, I mean RPG right, we have to nerf the characters somehow right.
+            //Pluss in my head the cards that a character will be able to use from the many cards on deck will be dependant on the amount of mana the individual 
+            //character has currently
+        }
+        int Stamina { get; set; }//I assume the hunger method will affect this trait
+         */
+        //Above is the mana and stamina int
+
+        bool Weakg { get; set; } //these work for each instances weakgrip debuff
+        bool exiledg { get; set; }// these work for each instances exiled debuff
+        bool markedg { get; set; }
+        bool calmState { get; set; }
+
+        #endregion
+        #region Attack Percent
+
+        //These below have to be int cause they are used as in the Random method Random.Next()
+        public int DrainPercent { get; set; }
+        public int CursePercent { get; set; }
+
+        #endregion
+        #region Defend Percent
+
+        #endregion
+        #region Buff Percent
+
+        public double PowerBuffPercent { get; set; }
+        public double EvadeBuffPercent { get; set; }
+        public double AgileBUffPercent { get; set; }
+        public double HealBuffPercent { get; set; }
+        public double counterAttackPercent { get; set; }
+        public double MagiBuffPercent { get; set; }
+        public object ProtectionSponser { get; set; }
+
+        #endregion
+        #region DeBUff Percent
+
+        double SlowDeBuffPercent { get; set; }
+        double RootedDebuffPercent { get; set; }
+        double WeakGripDeBuffPercent { get; set; }
+        double ExiledDeBuffPercent { get; set; }
+        double MarkedDeBuffPerent { get; set; }
+        double CalmDeBuffPercent { get; set; }
+
+
+        #endregion
 
         #endregion
         #region Character Methods
@@ -323,22 +355,34 @@ namespace Assets.Scripts.Entities.Character
             Persona target = (Persona)TargetInstance;
             target.HealthLoss(DamageObj.DamageValue);
         }
-
         public void PhysicalDamage(object CharacterInstance, object TargetInstance)
         {
             int physicalDamage = 0;
             int shieldcache = 0;
             int armourcahe = 0;
+            double markedda = 0;
 
             Persona Character = (Persona)CharacterInstance;
             Persona Target = (Persona)TargetInstance;
             DamageObject hitval = new DamageObject();
             hitval.DamageTrait = DamageObject.DamageVersion.Physical;
 
+            #region Character Logic
+
             physicalDamage = Character.DamageGiven();
+            markedda = Character.MarkedDeBuffPerent;
+            if (Character.PolishWeapon() == true) physicalDamage += (int)(physicalDamage * Character.PowerBuffPercent);// this is to work the polish buff
+            if (Character.Weakg == true) physicalDamage -= (int)(physicalDamage * Character.WeakGripDeBuffPercent);
+            if (Character.calmState == true) physicalDamage -= (int)(physicalDamage * Character.CalmDeBuffPercent);
+
+            #endregion
+            #region Target Logic
+
+            if (Target.ProtectionSponser != null) Target = (Persona)Target.ProtectionSponser;
+            if (Target.markedg == true) physicalDamage += (int)(physicalDamage * markedda);
+
             shieldcache = Target.shield;
             armourcahe = Target.Armour;
-
             shieldcache -= physicalDamage; Target.shield -= physicalDamage;//this will make shield=0 if the physical damage is too much
             //the code below ensures that the sheild is removed first
             if (shieldcache < 0)//this asks if there is no more sheild left
@@ -356,41 +400,172 @@ namespace Assets.Scripts.Entities.Character
             {
                 Target.shield = shieldcache;
             }
-        }
 
+            #endregion
+
+        }
         public void MagicalDamage(object CharacterInstance, object TargetInstance)
         {
-            throw new NotImplementedException();
-        }
+            int magicalDamage = 0;
+            int shieldcache = 0;
+            int magrescache = 0;
+            double markedda = 0;
 
+            Persona Character = (Persona)CharacterInstance;
+            Persona Target = (Persona)TargetInstance;
+            DamageObject hitval = new DamageObject();
+            hitval.DamageTrait = DamageObject.DamageVersion.Magical;
+
+            #region Character Logic
+
+            magicalDamage = Character.DamageGiven();
+            markedda = Character.MarkedDeBuffPerent;
+            if (Character.Chosen() == true) magicalDamage += (int)(magicalDamage * Character.MagiBuffPercent);
+            if (Character.exiledg == true) magicalDamage -= (int)(magicalDamage * Character.ExiledDeBuffPercent);
+            if (Character.calmState == true) magicalDamage -= (int)(magicalDamage * Character.CalmDeBuffPercent);
+            #endregion
+            #region Target Logic
+
+            shieldcache = Target.shield;
+            magrescache = Target.MagicRes;
+            shieldcache -= magicalDamage; Target.shield -= magicalDamage;
+            if (Target.ProtectionSponser != null) Target = (Persona)Target.ProtectionSponser;
+            if (Target.markedg == true) magicalDamage += (int)(magicalDamage * markedda);
+            if (shieldcache < 0)//this asks if there is no more sheild left
+            {
+                magrescache += shieldcache;// here the negative value adds with the positive- following negative number addition laws i hope
+                if (magrescache < 0)//this asks if there is no more resistance left
+                {
+                    Target.MagicRes = 0;
+                    hitval.DamageValue = Math.Abs(magrescache);
+                    Character.TrueDamage(Target, hitval); //This removes the health of the target
+                }
+                else { Target.MagicRes = magrescache; }
+            }
+            else
+            {
+                Target.shield = shieldcache;
+            }
+
+            #endregion
+
+        }
         public void Drain(object CharacterInstance, object TargetInstance)
         {
-            throw new NotImplementedException();
-        }
+            Persona Character = (Persona)CharacterInstance;
+            Persona Target = (Persona)TargetInstance;
+            //DamageObject hitval = new DamageObject();
+            //hitval.DamageTrait = DamageObject.DamageVersion.Magical;
 
+            Target.HealthLoss((int)(Target.Health * Character.DrainPercent));
+        }
         public void Ignite(object CharacterInstance, object TargetInstance)
         {
-            throw new NotImplementedException();
+            bool howmany = RoundOver;
+            int count = 0;
+            if (howmany != RoundOver) count++; howmany = RoundOver;
+            if (count == 2) MagicalDamage(CharacterInstance, TargetInstance);
         }
-
         public void Bleed(object CharacterInstance, object TargetInstance)
         {
-            throw new NotImplementedException();
+            if (RoundOver == true) PhysicalDamage(CharacterInstance, TargetInstance);
         }
-
         public void Blight(object CharacterInstance, object TargetInstance)
         {
-            throw new NotImplementedException();
+            int count = 1;
+            if (RoundOver == false)
+            {
+                while (count == 1)
+                {
+                    MagicalDamage(CharacterInstance, TargetInstance);
+                }
+                count--;
+            }
+            else count++;
         }
-
         public void BalancedDamage(object CharacterInstance, object TargetInstance)
         {
-            throw new NotImplementedException();
-        }
+            int Dama = 0; //this should have just been damage but i guess i failed. it should be
+            int shieldcache = 0;
+            int armourcahe = 0;
+            int magrescache = 0;
+            double markedda = 0;
 
+            Persona Character = (Persona)CharacterInstance;
+            Persona Target = (Persona)TargetInstance;
+            DamageObject hitval = new DamageObject();
+            hitval.DamageTrait = DamageObject.DamageVersion.Balanced;
+
+            #region Character Logic
+
+            Dama = Character.DamageGiven();
+            if (Character.calmState == true) Dama -= (int)(Dama * Character.CalmDeBuffPercent);
+            markedda = Character.MarkedDeBuffPerent;
+
+            #endregion
+            #region Target Logic
+
+            if (Target.ProtectionSponser != null) Target = (Persona)Target.ProtectionSponser;
+            if (Target.markedg == true) Dama += (int)(Dama * markedda);
+            shieldcache = Target.shield;
+            armourcahe = Target.Armour;
+            magrescache = Target.MagicRes;
+            shieldcache -= Dama; Target.shield -= Dama;
+            //the code below ensures that the sheild is removed first
+            if (shieldcache < 0)//this asks if there is no more sheild left
+            {
+                armourcahe += shieldcache / 2;// here the negative value adds with the positive- following negative number addition laws i hope
+                if (armourcahe < 0)//this asks if there is no more armour left
+                {
+                    Target.Armour = 0; // this makes sure armour is zero
+                    hitval.DamageValue = Math.Abs(armourcahe);
+                    Character.TrueDamage(Target, hitval); //This removes the health of the target
+                }
+                else { Target.Armour = armourcahe; }
+
+                magrescache += shieldcache / 2;// here the negative value adds with the positive- following negative number addition laws i hope
+                if (magrescache < 0)//this asks if there is no more armour left
+                {
+                    Target.MagicRes = 0;
+                    hitval.DamageValue = Math.Abs(magrescache);
+                    Character.TrueDamage(Target, hitval); //This removes the health of the target
+                }
+                else { Target.MagicRes = magrescache; }
+            }
+            else
+            {
+                Target.shield = shieldcache; //this shouldn't be here at all but imleaving it here just in case
+            }
+
+            #endregion
+
+        }
         public void Curse(object CharacterInstance, object TargetInstance)
         {
-            throw new NotImplementedException();
+            int randamage = 0;
+            double markedda = 0;
+
+            Persona Character = (Persona)CharacterInstance;
+            Persona Target = (Persona)TargetInstance;
+            DamageObject hitval = new DamageObject();
+            hitval.DamageTrait = DamageObject.DamageVersion.Magical;
+
+            markedda = Character.MarkedDeBuffPerent;
+            int count = 1;
+            if (RoundOver == false)
+            {
+                while (count == 1)
+                {
+                    Random r = new Random();
+                    if (Target.ProtectionSponser != null) Target = (Persona)Target.ProtectionSponser;
+                    if (Target.markedg == true) randamage += (int)(randamage * markedda);
+                    randamage = r.Next(1, Character.CursePercent);
+                    if (Target.markedg == true) randamage += (int)(randamage * markedda);
+                    Target.HealthLoss(randamage);
+                }
+                count--;
+            }
+            else count++;
         }
 
         public bool Feign(object CharacterInstance, object TargetInstance)
