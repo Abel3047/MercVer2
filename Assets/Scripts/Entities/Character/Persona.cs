@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace Assets.Scripts.Entities.Character
 {
@@ -611,27 +612,79 @@ namespace Assets.Scripts.Entities.Character
 
         public void Agile(object CharacterInstance)
         {
-            throw new NotImplementedException();
-        }
+            int agileCache = 0;
 
+            Persona Character = (Persona)CharacterInstance;
+            agileCache = (int)(Character.dodge * Character.AgileBUffPercent);
+            Character.dodge += agileCache;
+            agileCache = -agileCache;
+            if (RoundOver == true) Character.dodge += agileCache;
+        }
         public bool PolishWeapon()
         {
-            throw new NotImplementedException();
-        }
+            bool polishWeapon;
+            if (RoundOver == true) polishWeapon = false;
+            else { polishWeapon = true; }
 
+            return polishWeapon;
+        }
         public bool Chosen()
         {
-            throw new NotImplementedException();
-        }
+            bool chosen;
+            if (RoundOver == true) chosen = false;
+            else { chosen = true; }
 
+            return chosen;
+        }
         public bool Aware()
         {
-            throw new NotImplementedException();
+            bool Aware;
+            if (RoundOver == true) Aware = false;
+            else { Aware = true; }
+
+            return Aware;
         }
 
+        //OnGuard doesn't make sense cause i mean u have to be on guard from a specific someone, but not on guard from everyone
         public void OnGuard(object CharacterInstance, object TargetInstance)
         {
-            throw new NotImplementedException();
+            int standbyhealth = 0;
+            int storedhealth = 0;
+            int count = 0;
+
+            Persona Character = (Persona)CharacterInstance;
+            Persona Target = (Persona)TargetInstance;
+            int damage1 = 0;
+            Timer myTimer2;
+            myTimer2 = new Timer();
+            // Tell the timer what to do when it elapses
+            myTimer2.Elapsed += new ElapsedEventHandler(myEvent);
+            // Set it to go off every five seconds
+            myTimer2.Interval = 5000;
+            // And start it        
+            myTimer2.Enabled = true;
+
+            void myEvent(object source2, ElapsedEventArgs e) //this checks if the characterInstance.health changes
+            {
+                while (RoundOver == false)
+                {
+                    standbyhealth = Character.Health;
+                    damage1 = (int)(Character.DamageGiven() * Character.counterAttackPercent);
+                }
+            }
+            if (count == 0)//this is to store the initial health
+            {
+                storedhealth = standbyhealth;
+                count++;
+            }
+            else
+            {
+                if ((storedhealth != standbyhealth) && (RoundOver = true)) //if the health changes and the round finished
+                {
+                    Target.HealthLoss(damage1);
+                }
+
+            }
         }
 
         public void Provoking(object CharacterInstance)
