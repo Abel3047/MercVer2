@@ -42,12 +42,12 @@ namespace Assets.Scripts.Interface
 
         #endregion
         #region Defend
-        void PutArmour(object CharacterInstance, bool state, int amount);
-        void IncreaseMagicalResistance(object CharacterInstance, bool state, int amount);
-        void ShieldUp(object CharacterInstance, bool state, int amount);
-        void Purified(object CharacterInstance, bool state);
-        void Block(object CharacterInstance, bool state);
-        void Immune(object CharacterInstance, bool state);
+        void PutArmour(object TargetInstance, int amount);
+        void IncreaseMagicalResistance(object TargetInstance, int amount);
+        void ShieldUp(object TargetInstance, int amount);
+        void Purified(object TargetInstance);
+        void Block(object TargetInstance);
+        void Immune(object TargetInstance);
 
         #endregion
 
@@ -61,7 +61,7 @@ namespace Assets.Scripts.Interface
         void Provoking(object CharacterInstance); //this takes the character and uses the protector() method and its list of allies as targets
         void Protector(object OwnerInstance, object TargetInstance); //this asks like a contract. The person who will protectand the protected. eg Protector( instance,Mister Froggo)
         object Protected(object TargetInstance);//If hit, protector will take damage instead. but this isn't really given how damagegiven works. needs to be changed
-        void Revigorate(object CharacterInstance, object TargetInstance);
+        void Revigorate(object TargetInstance);
         void HealVictim(object TargetInstance); //this works on anyone, not just allies
         void GodsBlessing(object CharacterInstance, List<string> Allies);// I left it as allies so that its easier to deal with but really we dont need it as a parameter
 

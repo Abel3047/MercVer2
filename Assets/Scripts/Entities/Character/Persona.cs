@@ -253,6 +253,10 @@ namespace Assets.Scripts.Entities.Character
         #endregion
         #region Defend Percent
 
+        public int ImmuneRoundNumber { get { return ImmuneRoundNumber; } set { ImmuneRoundNumber = 0; } }
+        public bool ImmuneState { get; set; }
+        public bool BlockState { get; set; }
+
         #endregion
         #region Buff Percent
 
@@ -262,6 +266,7 @@ namespace Assets.Scripts.Entities.Character
         public double HealBuffPercent { get; set; }
         public double counterAttackPercent { get; set; }
         public double MagiBuffPercent { get; set; }
+        public double ProvokingBuffPercent { get; set; }
         public object ProtectionSponser { get; set; }
         public object AttackSponser { get; set; } // This is to store who last attacked a character
 
@@ -334,12 +339,10 @@ namespace Assets.Scripts.Entities.Character
             }
             //fire levelIncrease animation
         }
-
         public void TraitLevelUpActivation(int experienceLevel, List<ItemTemplate> Items)
         {
             throw new NotImplementedException();
         }
-
         public void XPIncrease(bool earnXp, int newEarnedXp)
         {
             EarnedXp = earnXp;
@@ -355,7 +358,9 @@ namespace Assets.Scripts.Entities.Character
         public void TrueDamage(object TargetInstance, DamageObject DamageObj)
         {
             Persona target = (Persona)TargetInstance;
-            target.HealthLoss(DamageObj.DamageValue);
+            if (target.ImmuneState == true)
+            { }
+            else { target.HealthLoss(DamageObj.DamageValue); }
         }
         public void PhysicalDamage(object CharacterInstance, object TargetInstance)
         {
@@ -383,6 +388,12 @@ namespace Assets.Scripts.Entities.Character
             Target.AttackSponser = Character;
             if (Target.ProtectionSponser != null) Target = (Persona)Target.ProtectionSponser;
             if (Target.markedg == true) physicalDamage += (int)(physicalDamage * markedda);
+            if (Target.BlockState == true)
+            {
+                physicalDamage = 0;
+                Target.BlockState =false; 
+                //blocking animation
+            }
 
             shieldcache = Target.shield;
             armourcahe = Target.Armour;
@@ -429,12 +440,14 @@ namespace Assets.Scripts.Entities.Character
             #endregion
             #region Target Logic
 
-            Target.AttackSponser = Character;
+            Target.AttackSponser = Character; //for Onguard()
             shieldcache = Target.shield;
             magrescache = Target.MagicRes;
+            if (Target.ImmuneState == true) magicalDamage = 0;
             shieldcache -= magicalDamage; Target.shield -= magicalDamage;
             if (Target.ProtectionSponser != null) Target = (Persona)Target.ProtectionSponser;
             if (Target.markedg == true) magicalDamage += (int)(magicalDamage * markedda);
+
             if (shieldcache < 0)//this asks if there is no more sheild left
             {
                 magrescache += shieldcache;// here the negative value adds with the positive- following negative number addition laws i hope
@@ -461,28 +474,50 @@ namespace Assets.Scripts.Entities.Character
             //DamageObject hitval = new DamageObject();
             //hitval.DamageTrait = DamageObject.DamageVersion.Magical;
             Target.AttackSponser = Character;
-
-            Target.HealthLoss((int)(Target.Health * Character.DrainPercent));
+            if (Target.ImmuneState == true)
+            { }
+            else { Target.HealthLoss((int)(Target.Health * Character.DrainPercent)); }
+            
         }
         public void Ignite(object CharacterInstance, object TargetInstance)
         {
+            Persona Target = (Persona)TargetInstance;
             bool howmany = RoundOver;
             int count = 0;
             if (howmany != RoundOver) count++; howmany = RoundOver;
-            if (count == 2) MagicalDamage(CharacterInstance, TargetInstance);
+            if (count == 2)
+            {
+                if (Target.ImmuneState == true)
+                { }
+                else
+                {
+                    MagicalDamage(CharacterInstance, TargetInstance);
+                }
+            }
+                
         }
         public void Bleed(object CharacterInstance, object TargetInstance)
         {
-            if (RoundOver == true) PhysicalDamage(CharacterInstance, TargetInstance);
+            Persona Target = (Persona)TargetInstance;
+            if (Target.ImmuneState == true)
+            { }
+            else { if (RoundOver == true) PhysicalDamage(CharacterInstance, TargetInstance); }
+            
         }
         public void Blight(object CharacterInstance, object TargetInstance)
         {
             int count = 1;
+            Persona Target = (Persona)TargetInstance;
             if (RoundOver == false)
             {
                 while (count == 1)
                 {
-                    MagicalDamage(CharacterInstance, TargetInstance);
+                    if (Target.ImmuneState == true)
+                    { }
+                    else
+                    {
+                        MagicalDamage(CharacterInstance, TargetInstance);
+                    }
                 }
                 count--;
             }
@@ -511,6 +546,7 @@ namespace Assets.Scripts.Entities.Character
             #region Target Logic
 
             Target.AttackSponser = Character;
+            if (Target.ImmuneState == true) Dama = 0;
             if (Target.ProtectionSponser != null) Target = (Persona)Target.ProtectionSponser;
             if (Target.markedg == true) Dama += (int)(Dama * markedda);
             shieldcache = Target.shield;
@@ -569,7 +605,12 @@ namespace Assets.Scripts.Entities.Character
                     if (Target.markedg == true) randamage += (int)(randamage * markedda);
                     randamage = r.Next(1, Character.CursePercent);
                     if (Target.markedg == true) randamage += (int)(randamage * markedda);
-                    Target.HealthLoss(randamage);
+                    if (Target.ImmuneState == true)
+                    { }
+                    else
+                    {
+                        Target.HealthLoss(randamage);
+                    }
                 }
                 count--;
             }
@@ -584,33 +625,45 @@ namespace Assets.Scripts.Entities.Character
         #endregion
         #region Defend
 
-        public void PutArmour(object CharacterInstance, bool state, int amount)
+        public void PutArmour(object TargetInstance, int amount)
         {
-            throw new NotImplementedException();
+            Persona Target = (Persona)TargetInstance;
+            Target.Armour = amount;
         }
-
-        public void IncreaseMagicalResistance(object CharacterInstance, bool state, int amount)
+        public void IncreaseMagicalResistance(object TargetInstance, int amount)
         {
-            throw new NotImplementedException();
+            Persona Target = (Persona)TargetInstance;
+            Target.MagicRes = amount;
         }
-
-        public void ShieldUp(object CharacterInstance, bool state, int amount)
+        public void ShieldUp(object TargetInstance, int amount)
         {
-            throw new NotImplementedException();
+            Persona Target = (Persona)TargetInstance;
+            Target.shield = amount;
         }
-
-        public void Purified(object CharacterInstance, bool state)
+        public void Purified(object TargetInstance)
         {
-            throw new NotImplementedException();
+            Persona Target = (Persona)TargetInstance;
+            //After the methodds that do te things
+            while (RoundOver==false/*This is supposed to be while the Game session is continuing*/)
+            {
+                Target.RemoveDebuffEffects = true;
+            }
         }
-
-        public void Block(object CharacterInstance, bool state)
+        public void Block(object TargetInstance)
         {
-            throw new NotImplementedException();
+            Persona Target = (Persona)TargetInstance;
+            Target.BlockState = true;
         }
-        public void Immune(object CharacterInstance, bool state)
+        public void Immune(object TargetInstance)
         {
-            throw new NotImplementedException();
+            Persona Target = (Persona)TargetInstance;
+            while (Target.ImmuneRoundNumber != 0)
+            {
+                Revigorate(Target);
+                Block(Target);
+                Target.ImmuneState = true;
+            }
+            Target.ImmuneState = false;
         }
 
         #endregion
@@ -694,44 +747,59 @@ namespace Assets.Scripts.Entities.Character
 
             }
         }
-
         public void Provoking(object CharacterInstance)
         {
-            throw new NotImplementedException();
+            Persona Character = (Persona)CharacterInstance;
+            object scapegoat = Character;
+            scapegoat = Character.Allies.Any();
+            Random r = new Random();
+            double chanceDa = r.Next(1, 101) ;
+            if (chanceDa <= Character.ProvokingBuffPercent)
+            {
+                Protector(CharacterInstance, scapegoat);
+            }
         }
-
         public void Protector(object OwnerInstance, object TargetInstance)
         {
-            throw new NotImplementedException();
-        }
+            Persona Character = (Persona)OwnerInstance;
+            Persona Target = (Persona)TargetInstance;
 
-        public object Protected(object TargetInstance)
+            Target.ProtectionSponser = Character;
+            if (RoundOver == true) Target.ProtectionSponser = null;
+        }
+        public object Protected(object TargetInstance)// this is to return the protector
         {
-            throw new NotImplementedException();
+            Persona Target = (Persona)TargetInstance;
+            object sponser = Target;
+            //here logic must ask who is the persons proctector
+            sponser = Target.ProtectionSponser;
+            return sponser;
         }
-
-        public void Revigorate(object CharacterInstance, object TargetInstance)
+        public void Revigorate(object TargetInstance)
         {
-            throw new NotImplementedException();
+            Persona Target = (Persona)TargetInstance;
+            Target.RemoveDebuffEffects = true;
+            //in every Debuff there will be a removeBuff==false, but of course it will ask first if it equals true
         }
-
         public void HealVictim(object TargetInstance)
         {
-            throw new NotImplementedException();
+            int HealingCache = 0;
+            Persona Target = (Persona)TargetInstance;
+            HealingCache = (int)(Target.Health * Target.HealBuffPercent);
+            Target.Health += HealingCache;
         }
-
         public void GodsBlessing(object CharacterInstance, List<string> Allies)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Slow(object CharacterInstance, object TargetInstance)
         {
             throw new NotImplementedException();
         }
 
         #endregion
         #region Debuff
+
+        public bool Slow(object CharacterInstance, object TargetInstance)
+        {
+            throw new NotImplementedException();
+        }
 
         public bool Rooted(object CharacterInstance, object TargetInstance)
         {
