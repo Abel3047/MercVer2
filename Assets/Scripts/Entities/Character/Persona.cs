@@ -263,6 +263,7 @@ namespace Assets.Scripts.Entities.Character
         public double counterAttackPercent { get; set; }
         public double MagiBuffPercent { get; set; }
         public object ProtectionSponser { get; set; }
+        public object AttackSponser { get; set; } // This is to store who last attacked a character
 
         #endregion
         #region DeBUff Percent
@@ -379,6 +380,7 @@ namespace Assets.Scripts.Entities.Character
             #endregion
             #region Target Logic
 
+            Target.AttackSponser = Character;
             if (Target.ProtectionSponser != null) Target = (Persona)Target.ProtectionSponser;
             if (Target.markedg == true) physicalDamage += (int)(physicalDamage * markedda);
 
@@ -427,6 +429,7 @@ namespace Assets.Scripts.Entities.Character
             #endregion
             #region Target Logic
 
+            Target.AttackSponser = Character;
             shieldcache = Target.shield;
             magrescache = Target.MagicRes;
             shieldcache -= magicalDamage; Target.shield -= magicalDamage;
@@ -457,6 +460,7 @@ namespace Assets.Scripts.Entities.Character
             Persona Target = (Persona)TargetInstance;
             //DamageObject hitval = new DamageObject();
             //hitval.DamageTrait = DamageObject.DamageVersion.Magical;
+            Target.AttackSponser = Character;
 
             Target.HealthLoss((int)(Target.Health * Character.DrainPercent));
         }
@@ -506,6 +510,7 @@ namespace Assets.Scripts.Entities.Character
             #endregion
             #region Target Logic
 
+            Target.AttackSponser = Character;
             if (Target.ProtectionSponser != null) Target = (Persona)Target.ProtectionSponser;
             if (Target.markedg == true) Dama += (int)(Dama * markedda);
             shieldcache = Target.shield;
@@ -550,6 +555,8 @@ namespace Assets.Scripts.Entities.Character
             Persona Target = (Persona)TargetInstance;
             DamageObject hitval = new DamageObject();
             hitval.DamageTrait = DamageObject.DamageVersion.Magical;
+
+            Target.AttackSponser = Character;// I have doubts that this should be here
 
             markedda = Character.MarkedDeBuffPerent;
             int count = 1;
@@ -644,8 +651,6 @@ namespace Assets.Scripts.Entities.Character
 
             return Aware;
         }
-
-        //OnGuard doesn't make sense cause i mean u have to be on guard from a specific someone, but not on guard from everyone
         public void OnGuard(object CharacterInstance, object TargetInstance)
         {
             int standbyhealth = 0;
@@ -681,7 +686,10 @@ namespace Assets.Scripts.Entities.Character
             {
                 if ((storedhealth != standbyhealth) && (RoundOver = true)) //if the health changes and the round finished
                 {
+                    Target.PhysicalDamage(Target, Target.AttackSponser); //This is to attack the person who hit him
+                    Target.AttackSponser = null;
                     Target.HealthLoss(damage1);
+                    count = 0;
                 }
 
             }
