@@ -10,7 +10,7 @@ using System.Timers;
 
 namespace Assets.Scripts.Entities.Character
 {
-    class Persona:Card,IPersona,ICombatAction
+    public class Persona: Individual, IPersona,ICombatAction
     {
         //We aren't making persona abstract cause we need to use it as a template in some logic
         //Anything here thats not virtual will be the same for all characters
