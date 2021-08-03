@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Assets.Scripts.Entities.Item
 {
-    abstract class ItemTemplate : Card
+    public abstract class ItemTemplate : Card
     {
         /*
          Here we declare all the traits expected of anything (Anyone) that can be described as a character (For both playable and NPC)

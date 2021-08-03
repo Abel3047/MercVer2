@@ -2,17 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardBehaviour : Card
+public abstract class CardBehaviour : Card
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public abstract void CardAction();//This is abstract so that each card can have its own version
+
 }
