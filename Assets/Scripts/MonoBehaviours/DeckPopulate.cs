@@ -66,6 +66,22 @@ namespace Assets.Scripts.MonoBehaviours
 
             Vector2 location = new Vector2(-6f, -3.8f);
             Vector2 scale = new Vector2(.25f, .25f);
+
+            sprites.ForEach(createSpriteObj);
+            void createSpriteObj(Sprite sprite)
+            {
+                GameObject spawnObject = new GameObject();
+                GameObject _object = Instantiate(spawnObject, location, Quaternion.identity, GameObject.Find("Cards").transform);
+                _object.transform.localScale = scale;
+                string spritename = sprite.name;
+               // CardBehaviour Ty= CardBehaviour.CardBevaTypes.Where<CardBehaviour>( x=>x.==spritename);
+                //_object.AddComponent<Ty>();
+
+                CreateCard(_object, sprite);
+                Destroy(spawnObject);
+
+                location += new Vector2(1.6f, 0);
+            }
             for (int i = 0; i < sprites.Count; i++)
             {
                 GameObject spawnObject = new GameObject();

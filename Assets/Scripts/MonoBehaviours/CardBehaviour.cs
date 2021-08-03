@@ -9,6 +9,9 @@ public abstract class CardBehaviour : Card
     public abstract object Character { get; set; }
     public abstract object Target { get; set; }
 
+    public static List<CardBehaviour> CardBevaTypes;
+    public static string spriteNameNO { get; set; }
+
     public void OnMouseDown()
     {
         //here should be an event that waits for the target instance to come through. And when it does thats when Card Action fires
@@ -32,6 +35,10 @@ public abstract class CardBehaviour : Card
         TwoInstances.Add(Character);
         TwoInstances.Add(Target);
         return TwoInstances;
+    }
+    string getspriteName()
+    {
+        return spriteNameNO;
     }
 
 }

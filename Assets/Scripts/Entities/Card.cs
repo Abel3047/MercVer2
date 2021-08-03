@@ -35,4 +35,5 @@ public class Card : MonoBehaviour,ICard
     {
         throw new System.NotImplementedException();
     }
+
 }
