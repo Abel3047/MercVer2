@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using static Assets.Scripts.Entities.Character.Persona;
 using UnityEngine;
 using UnityEngine.UI;
+using Assets.Scripts.Entities.Character;
 
 namespace Assets.Scripts.MonoBehaviours
 {
@@ -16,6 +17,9 @@ namespace Assets.Scripts.MonoBehaviours
         public Vector3 Goto;
         public SpeciesType species;
         public Image Deck;
+
+        public Persona person;
+
         void Awake()
         {
             parent = transform.parent.gameObject;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Assets.Scripts.Helpers
+namespace Assets.Scripts.Models
 {
     public class DamageObject
     {
@@ -13,7 +13,7 @@ namespace Assets.Scripts.Helpers
         {
             True,Physical,Magical,Balanced
         }
-        public int DamageValue;
+        public int DamageValue { get { return DamageValue} set { DamageValue = 0; if (DamageValue < 0) DamageValue = 0; } }
         public object DamageTrait;
     }
 }

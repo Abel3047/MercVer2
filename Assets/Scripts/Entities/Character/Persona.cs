@@ -1,6 +1,6 @@
 ﻿using Assets.Scripts.Entities.Item;
 using Assets.Scripts.Interface;
-using Assets.Scripts.Helpers;
+using Assets.Scripts.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +19,7 @@ namespace Assets.Scripts.Entities.Character
         public Persona()
         {
             Instance = this;
+            if(RoundInfo.GameInSession==true) BlackList();// this is to make a sequence of enemies who last hit you up to five
         }
 
         #region GivenCharacterTraits
@@ -238,10 +239,10 @@ namespace Assets.Scripts.Entities.Character
          */
         //Above is the mana and stamina int
 
-        bool Weakg { get; set; } //these work for each instances weakgrip debuff
-        bool exiledg { get; set; }// these work for each instances exiled debuff
-        bool markedg { get; set; }
-        bool calmState { get; set; }
+        public bool Weakg { get; set; } //these work for each instances weakgrip debuff
+        public bool exiledg { get; set; }// these work for each instances exiled debuff
+        public bool markedg { get; set; }
+        public bool calmState { get; set; }
 
         #endregion
         #region Attack Percent
@@ -249,6 +250,7 @@ namespace Assets.Scripts.Entities.Character
         //These below have to be int cause they are used as in the Random method Random.Next()
         public int DrainPercent { get; set; }
         public int CursePercent { get; set; }
+        public int BlightAmount { get; set; }
 
         #endregion
         #region Defend Percent
@@ -273,12 +275,12 @@ namespace Assets.Scripts.Entities.Character
         #endregion
         #region DeBUff Percent
 
-        double SlowDeBuffPercent { get; set; }
-        double RootedDebuffPercent { get; set; }
-        double WeakGripDeBuffPercent { get; set; }
-        double ExiledDeBuffPercent { get; set; }
-        double MarkedDeBuffPerent { get; set; }
-        double CalmDeBuffPercent { get; set; }
+        public double SlowDeBuffPercent { get; set; }
+        public double RootedDebuffPercent { get; set; }
+        public double WeakGripDeBuffPercent { get; set; }
+        public double ExiledDeBuffPercent { get; set; }
+        public double MarkedDeBuffPerent { get; set; }
+        public double CalmDeBuffPercent { get; set; }
 
 
         #endregion
@@ -418,7 +420,7 @@ namespace Assets.Scripts.Entities.Character
             #endregion
 
         }
-        public void MagicalDamage(object CharacterInstance, object TargetInstance)
+        public void MagicalDamage(object CharacterInstance, object TargetInstance, int amount)
         {
             int magicalDamage = 0;
             int shieldcache = 0;
@@ -432,7 +434,7 @@ namespace Assets.Scripts.Entities.Character
 
             #region Character Logic
 
-            magicalDamage = Character.DamageGiven();
+            magicalDamage = amount;
             markedda = Character.MarkedDeBuffPerent;
             if (Character.Chosen() == true) magicalDamage += (int)(magicalDamage * Character.MagiBuffPercent);
             if (Character.exiledg == true) magicalDamage -= (int)(magicalDamage * Character.ExiledDeBuffPercent);
@@ -479,7 +481,7 @@ namespace Assets.Scripts.Entities.Character
             else { Target.HealthLoss((int)(Target.Health * Character.DrainPercent)); }
             
         }
-        public void Ignite(object CharacterInstance, object TargetInstance)
+        public void Ignite(object CharacterInstance, object TargetInstance, int amount)
         {
             Persona Target = (Persona)TargetInstance;
             bool howmany = RoundOver;
@@ -491,7 +493,7 @@ namespace Assets.Scripts.Entities.Character
                 { }
                 else
                 {
-                    MagicalDamage(CharacterInstance, TargetInstance);
+                    MagicalDamage(CharacterInstance, TargetInstance, amount);
                 }
             }
                 
@@ -504,10 +506,12 @@ namespace Assets.Scripts.Entities.Character
             else { if (RoundOver == true) PhysicalDamage(CharacterInstance, TargetInstance); }
             
         }
-        public void Blight(object CharacterInstance, object TargetInstance)
+        public void Blight(object CharacterInstance, object TargetInstance, int amount)
         {
             int count = 1;
+            Persona Character = (Persona)CharacterInstance;
             Persona Target = (Persona)TargetInstance;
+            Character.BlightAmount = amount;
             if (RoundOver == false)
             {
                 while (count == 1)
@@ -516,12 +520,27 @@ namespace Assets.Scripts.Entities.Character
                     { }
                     else
                     {
-                        MagicalDamage(CharacterInstance, TargetInstance);
+                        MagicalDamage(CharacterInstance, TargetInstance, amount);
                     }
                 }
                 count--;
             }
             else count++;
+            /*
+             * Persona Character=(Persona)CharacterInstance;
+             * Character.blightNumberofrounds=4;
+             * Make sure here that you add a event handler that checks
+             * int count= RoundInfo.RoundsPassed-blightRoundNumber
+             for (int i = 0; i <count ; i++)
+            {
+            if (Target.ImmuneState == true)
+                    { }
+                    else
+                    {
+                        MagicalDamage(CharacterInstance, TargetInstance);
+                    }
+            }
+             */
         }
         public void BalancedDamage(object CharacterInstance, object TargetInstance)
         {
@@ -621,7 +640,7 @@ namespace Assets.Scripts.Entities.Character
         {
             throw new NotImplementedException();
         }
-
+       
         #endregion
         #region Defend
 
@@ -899,6 +918,40 @@ namespace Assets.Scripts.Entities.Character
             throw new NotImplementedException();
         }
 
+        #endregion
+        #region Non-Mentioned Methods
+
+        public void BreakArmour(object TargetInstance, int amount)
+        {
+            Persona Target = (Persona)TargetInstance;
+            Target.Armour -= amount;
+        }
+
+        public List<object> RevengeDa = null;// this is for the below method
+        public void BlackList()
+        {
+            object grugde = AttackSponser;
+            Timer myTimer2;
+            myTimer2 = new Timer();
+            // Tell the timer what to do when it elapses
+            myTimer2.Elapsed += new ElapsedEventHandler(myEvent);
+            // Set it to go off every one seconds
+            myTimer2.Interval = 1000;
+            // And start it        
+            myTimer2.Enabled = true;
+
+            //this is supposed to add to a list up to 5, of the last person to cause you damage. Its called in the constructor and hopefully runs the whole time. 
+           
+            void myEvent(object source2, ElapsedEventArgs e) 
+            {
+                if (grugde != AttackSponser)
+                {
+                    RevengeDa.Add(AttackSponser); grugde = AttackSponser;
+                    if (RevengeDa.Count > 5) RevengeDa.Remove(RevengeDa.Last());
+                }
+            }
+        }
+        
         #endregion
 
         #endregion
