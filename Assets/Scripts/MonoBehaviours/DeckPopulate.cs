@@ -83,7 +83,7 @@ namespace Assets.Scripts.MonoBehaviours
 
         private void CreateCard(GameObject _object, Sprite sprite)
         {
-            _object.AddComponent<CardBehaviour>(); //We might remove this line if we can add the component directly to the sprite
+            _object.AddComponent<CardBehaviour>(); 
             SpriteRenderer renderer = _object.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
         }

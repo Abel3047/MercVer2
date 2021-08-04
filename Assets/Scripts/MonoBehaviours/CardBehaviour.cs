@@ -14,7 +14,7 @@ public class CardBehaviour : Card
     public cardName cardname;
 
     //Create Card Interact with Target Script
-
+    //Shouldn't we get cardname to equal to the sprite name?
     public void OnAction(object TargetInstance)
     {
 
