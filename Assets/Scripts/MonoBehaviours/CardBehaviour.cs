@@ -7,6 +7,7 @@ using static Assets.Scripts.Models.Enums;
 using Assets.Scripts.MonoBehaviours;
 using Assets.Scripts.Entities.Character;
 using System.Timers;
+using Assets.Scripts.Models;
 
 public class CardBehaviour : Card
 {
@@ -20,6 +21,7 @@ public class CardBehaviour : Card
 
         Persona CharacterInstance = null;
         Persona Target = (Persona)TargetInstance;
+        DamageObject damageObject = new DamageObject();
         if (GameManager.Instance.activeCharacter.person != null) CharacterInstance = GameManager.Instance.activeCharacter.person;
 
         switch (cardname)
@@ -43,22 +45,47 @@ public class CardBehaviour : Card
             case cardName.lionNinthCard:
                 break;
             case cardName.crocodileFirstCard:
+                CharacterInstance.TrueDamage(Target, damageObject);
                 break;
             case cardName.crocodileSecondCard:
+                int enemyindexCount = CharacterInstance.Enemies.Count;
+                damageObject.DamageValue = CharacterInstance.DamageGiven();
+                int tea = Random.Range(1, enemyindexCount);
+                int butter = Random.Range(1, enemyindexCount);
+                Persona first = (Persona)CharacterInstance.Enemies[tea];
+                Persona second = (Persona)CharacterInstance.Enemies[butter];
+                CharacterInstance.TrueDamage(Target, damageObject);
+                damageObject.DamageValue = CharacterInstance.DamageGiven();
+                CharacterInstance.TrueDamage(Target, damageObject);
                 break;
             case cardName.crocodileThirdCard:
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                CharacterInstance.BreakArmour(Target, (int)(Target.Armour* 0.5));
                 break;
             case cardName.crocodileFourthCard:
                 break;
             case cardName.crocodileFifthCard:
+                int ver = Target.Health;
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                int beryt = ver - Target.Health;
+                if (beryt > 0) CharacterInstance.Health += beryt;
                 break;
             case cardName.crocodileSixthCard:
+                CharacterInstance.Bleed(CharacterInstance, Target);
                 break;
             case cardName.crocodileSeventhCard:
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                if(Target.Health==0)
+                {
+                    int enemyindexCount2 = CharacterInstance.Enemies.Count;
+                    int bread = Random.Range(1, enemyindexCount2);
+                    CharacterInstance.Bleed(CharacterInstance, CharacterInstance.Enemies[bread]);
+                }
                 break;
             case cardName.crocodileEighthCard:
                 break;
             case cardName.crocodileNinthCard:
+                CharacterInstance.Speed += CharacterInstance.Speed;
                 break;
             case cardName.fishFirstCard:
                 break;
