@@ -8,6 +8,7 @@ using Assets.Scripts.MonoBehaviours;
 using Assets.Scripts.Entities.Character;
 using System.Timers;
 using Assets.Scripts.Models;
+using System;
 
 public class CardBehaviour : Card
 {
@@ -50,8 +51,8 @@ public class CardBehaviour : Card
             case cardName.crocodileSecondCard:
                 int enemyindexCount = CharacterInstance.Enemies.Count;
                 damageObject.DamageValue = CharacterInstance.DamageGiven();
-                int tea = Random.Range(1, enemyindexCount);
-                int butter = Random.Range(1, enemyindexCount);
+                int tea = UnityEngine.Random.Range(1, enemyindexCount);
+                int butter = UnityEngine.Random.Range(1, enemyindexCount);
                 Persona first = (Persona)CharacterInstance.Enemies[tea];
                 Persona second = (Persona)CharacterInstance.Enemies[butter];
                 CharacterInstance.TrueDamage(Target, damageObject);
@@ -78,7 +79,7 @@ public class CardBehaviour : Card
                 if(Target.Health==0)
                 {
                     int enemyindexCount2 = CharacterInstance.Enemies.Count;
-                    int bread = Random.Range(1, enemyindexCount2);
+                    int bread = UnityEngine.Random.Range(1, enemyindexCount2);
                     CharacterInstance.Bleed(CharacterInstance, CharacterInstance.Enemies[bread]);
                 }
                 break;
@@ -129,7 +130,7 @@ public class CardBehaviour : Card
                 break;
             case cardName.fishNinthCard:
                 CharacterInstance.PhysicalDamage(CharacterInstance, Target);
-                float egg=Random.Range(1, 101);
+                float egg= UnityEngine.Random.Range(1, 101);
                 if(egg>=50) CharacterInstance.PhysicalDamage(CharacterInstance, Target);
                 break;
             case cardName.salamanderFirstCard:
@@ -144,7 +145,7 @@ public class CardBehaviour : Card
                 break;
             case cardName.salamanderFourthCard:
                 int enemyindexCount3 = CharacterInstance.Enemies.Count;
-                int breadTRA = Random.Range(1, enemyindexCount3); int cond = Random.Range(1, enemyindexCount3);
+                int breadTRA = UnityEngine.Random.Range(1, enemyindexCount3); int cond = UnityEngine.Random.Range(1, enemyindexCount3);
                 object fiaas = CharacterInstance.Enemies[breadTRA];
                 object aallss = CharacterInstance.Enemies[cond];
                 CharacterInstance.PhysicalDamage(CharacterInstance, fiaas); CharacterInstance.WeakGrip(CharacterInstance, fiaas);
@@ -187,13 +188,13 @@ public class CardBehaviour : Card
                 CharacterInstance.WeakGripDeBuffPercent = 0.5;
                 CharacterInstance.Weakg = true;
                 int eCount3 = CharacterInstance.Enemies.Count;
-                int digaoogaoo = Random.Range(1, eCount3); int diguyy = Random.Range(1, eCount3); //random index of the enemy
+                int digaoogaoo = UnityEngine.Random.Range(1, eCount3); int diguyy = UnityEngine.Random.Range(1, eCount3); //random index of the enemy
                 Persona firthealth = (Persona)CharacterInstance.Enemies[digaoogaoo]; Persona sechealths= (Persona)CharacterInstance.Enemies[diguyy];
                 CharacterInstance.PhysicalDamage(CharacterInstance, firthealth); CharacterInstance.PhysicalDamage(CharacterInstance, sechealths);
                 CharacterInstance.Weakg = false;
                 break;
             case cardName.frogFirstCard:
-                float bacon = Random.Range(1, 101);
+                float bacon = UnityEngine.Random.Range(1, 101);
                 if (bacon >= 50) CharacterInstance.ProtectionSponser = Target;
                 break;
             case cardName.frogSecondCard:
@@ -267,16 +268,33 @@ public class CardBehaviour : Card
                 CharacterInstance.Blight(CharacterInstance, lowestenemy, totalEnemyHealth);
                 break;
             case cardName.tritonFirstCard:
+                int war=0;
+                Action<object> getwarriors(object warrs)
+                {
+                    if ((warrs.GetType() == typeof(WarriorTemplate)) || (warrs.GetType() == typeof(TankWarriorTemplate))) war++;
+                    return (Action<object>)warrs;
+                }
+                foreach (var item in CharacterInstance.Allies) getwarriors(item);
+                foreach (var item in CharacterInstance.Enemies) getwarriors(item);
+                CharacterInstance.ShieldUp(CharacterInstance, (int)(CharacterInstance.shield*0.1)*war);
                 break;
             case cardName.tritonSecondCard:
+                TankWarriorTemplate tank = new();
+                int gethee= (int)(tank.Health * 0.1);
+                foreach (var item in CharacterInstance.Allies) CharacterInstance.ShieldUp(item, gethee);
                 break;
             case cardName.tritonThirdCard:
+                if (CharacterInstance.shield > 0)
+                { CharacterInstance.PhysicalDamage(CharacterInstance, Target); CharacterInstance.PhysicalDamage(CharacterInstance, Target); }
+                else { CharacterInstance.PhysicalDamage(CharacterInstance, Target); }
                 break;
             case cardName.tritonFourthCard:
                 break;
             case cardName.tritonFifthCard:
                 break;
             case cardName.tritonSixthCard:
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                if(CharacterInstance.shield>0) CharacterInstance.
                 break;
             case cardName.tritonSeventhCard:
                 break;
