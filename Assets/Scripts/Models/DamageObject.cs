@@ -13,7 +13,7 @@ namespace Assets.Scripts.Models
         {
             True,Physical,Magical,Balanced
         }
-        public int DamageValue { get { return DamageValue} set { DamageValue = 0; if (DamageValue < 0) DamageValue = 0; } }
+        public int DamageValue { get { return DamageValue;} set { DamageValue = 0; if (DamageValue < 0) DamageValue = 0; } }
         public object DamageTrait;
     }
 }

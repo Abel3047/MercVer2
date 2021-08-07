@@ -86,6 +86,7 @@ public class CardBehaviour : Card
                 break;
             case cardName.crocodileNinthCard:
                 CharacterInstance.Speed += CharacterInstance.Speed;
+                if(RoundInfo.RoundDone==true) CharacterInstance.Speed -= CharacterInstance.Speed;
                 break;
             case cardName.fishFirstCard:
                 break;
@@ -134,20 +135,62 @@ public class CardBehaviour : Card
             case cardName.salamanderFirstCard:
                 break;
             case cardName.salamanderSecondCard:
+
                 break;
             case cardName.salamanderThirdCard:
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                CharacterInstance.PowerBuffPercent = 0.3;
+                CharacterInstance.PolishWeapon();
                 break;
             case cardName.salamanderFourthCard:
+                int enemyindexCount3 = CharacterInstance.Enemies.Count;
+                int breadTRA = Random.Range(1, enemyindexCount3); int cond = Random.Range(1, enemyindexCount3);
+                object fiaas = CharacterInstance.Enemies[breadTRA];
+                object aallss = CharacterInstance.Enemies[cond];
+                CharacterInstance.PhysicalDamage(CharacterInstance, fiaas); CharacterInstance.WeakGrip(CharacterInstance, fiaas);
+                CharacterInstance.PhysicalDamage(CharacterInstance, aallss); CharacterInstance.WeakGrip(CharacterInstance, aallss);
                 break;
             case cardName.salamanderFifthCard:
                 break;
             case cardName.salamanderSixthCard:
                 break;
             case cardName.salamanderSeventhCard:
+                int roundcount = RoundInfo.RoundsPassed;
+
+                Timer my;
+                my = new Timer();
+                // Tell the timer what to do when it elapses
+                my.Elapsed += new ElapsedEventHandler(myEvent12);
+                // Set it to go off every one seconds
+                my.Interval = 1000;
+                // And start it        
+                my.Enabled = true;
+               
+                void myEvent12(object source2, ElapsedEventArgs e)
+                {
+                    if (RoundInfo.RoundsPassed ==roundcount+1)
+                    {
+                        CharacterInstance.Health -= (int)(CharacterInstance.Health * 0.1);
+                        CharacterInstance.Armour += (int)(CharacterInstance.Armour * 0.1) * 2;
+                    }
+                    if (RoundInfo.RoundsPassed == roundcount + 2)
+                    {
+                        CharacterInstance.Health -= (int)(CharacterInstance.Health * 0.1);
+                        CharacterInstance.Armour += (int)(CharacterInstance.Armour * 0.1) * 2;
+                        my.Close();
+                    }
+                }
                 break;
             case cardName.salamanderEighthCard:
                 break;
             case cardName.salamanderNinthCard:
+                CharacterInstance.WeakGripDeBuffPercent = 0.5;
+                CharacterInstance.Weakg = true;
+                int eCount3 = CharacterInstance.Enemies.Count;
+                int digaoogaoo = Random.Range(1, eCount3); int diguyy = Random.Range(1, eCount3); //random index of the enemy
+                Persona firthealth = (Persona)CharacterInstance.Enemies[digaoogaoo]; Persona sechealths= (Persona)CharacterInstance.Enemies[diguyy];
+                CharacterInstance.PhysicalDamage(CharacterInstance, firthealth); CharacterInstance.PhysicalDamage(CharacterInstance, sechealths);
+                CharacterInstance.Weakg = false;
                 break;
             case cardName.frogFirstCard:
                 float bacon = Random.Range(1, 101);
@@ -182,6 +225,7 @@ public class CardBehaviour : Card
                             CharacterInstance.HealBuffPercent = (double)0.2 * final1;
                             CharacterInstance.HealVictim(Target);
                             stored1 = Target.Health;
+                            myTimer2.Close();
                         }
                     }
                 }
