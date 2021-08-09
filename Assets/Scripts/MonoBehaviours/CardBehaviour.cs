@@ -117,10 +117,9 @@ public class CardBehaviour : Card
                 }
                 if(Target.Health<50)
                 {
-                    CharacterInstance.Weakg = true;
-                    CharacterInstance.WeakGripDeBuffPercent = 0.5;
-                    CharacterInstance.PhysicalDamage(CharacterInstance, TargetInstance);
-                    CharacterInstance.Weakg = false; CharacterInstance.WeakGripDeBuffPercent = 0;
+                    int guut= CharacterInstance.DamageGiven()/2;
+                    damageObject.DamageValue = guut;
+                    CharacterInstance.PhysicalDamage(CharacterInstance, TargetInstance, damageObject);
                 }
                 break;
             case cardName.fishSeventhCard:
@@ -289,18 +288,57 @@ public class CardBehaviour : Card
                 else { CharacterInstance.PhysicalDamage(CharacterInstance, Target); }
                 break;
             case cardName.tritonFourthCard:
+                CharacterInstance.ShieldUp(CharacterInstance,CharacterInstance.shield * 2);
+                CharacterInstance.Provoking(CharacterInstance);
                 break;
             case cardName.tritonFifthCard:
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                if (CharacterInstance.shield <= 0) CharacterInstance.ShieldUp(CharacterInstance,(int)(CharacterInstance.Health*0.15));
                 break;
             case cardName.tritonSixthCard:
                 CharacterInstance.PhysicalDamage(CharacterInstance, Target);
-                if(CharacterInstance.shield>0) CharacterInstance.
+                if (CharacterInstance.shield > 0) CharacterInstance.BreakArmour(Target, CharacterInstance.DamageGiven());
                 break;
             case cardName.tritonSeventhCard:
+                int nextRoundmaybe = 0; nextRoundmaybe = RoundInfo.RoundsPassed;
+                int collectiveesscence = 0; collectiveesscence = CharacterInstance.Health + CharacterInstance.shield + CharacterInstance.Armour;
+
+                Timer myr2;
+                myr2 = new Timer();
+                // Tell the timer what to do when it elapses
+                myr2.Elapsed += new ElapsedEventHandler(myEt);
+                // Set it to go off every one seconds
+                myr2.Interval = 1000;
+                // And start it        
+                myr2.Enabled = true;
+                void myEt(object source2, ElapsedEventArgs e)
+                {
+                    if (RoundInfo.RoundsPassed == (nextRoundmaybe + 1))
+                    {
+                        collectiveesscence -= CharacterInstance.Health + CharacterInstance.shield + CharacterInstance.Armour;
+                        damageObject.DamageValue = collectiveesscence;
+                        CharacterInstance.PhysicalDamage(CharacterInstance, CharacterInstance.AttackSponser, damageObject);
+                        myr2.Close();
+                    }
+                    else { }
+                }
+               
                 break;
             case cardName.tritonEighthCard:
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                if (CharacterInstance.shield <= 0) CharacterInstance.ShieldUp(CharacterInstance, (int)(CharacterInstance.shield * 0.2));
+                if(CharacterInstance.shield >0)
+                {
+                    int geeer = CharacterInstance.shield;
+                    CharacterInstance.shield -= geeer;
+                    damageObject.DamageValue = geeer;
+                    CharacterInstance.PhysicalDamage(CharacterInstance, Target, damageObject);
+                }
                 break;
             case cardName.tritonNinthCard:
+                CharacterInstance.shield += CharacterInstance.shield;
+                int enemycount = CharacterInstance.Enemies.Count;
+                CharacterInstance.shield += (int)(CharacterInstance.shield*0.1*enemycount);
                 break;
             default:
                 break;

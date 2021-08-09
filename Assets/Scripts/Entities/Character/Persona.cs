@@ -420,6 +420,61 @@ namespace Assets.Scripts.Entities.Character
             #endregion
 
         }
+        public void PhysicalDamage(object CharacterInstance, object TargetInstance, DamageObject damageObject)
+        {
+            int physicalDamage = 0;
+            int shieldcache = 0;
+            int armourcahe = 0;
+            double markedda = 0;
+
+            Persona Character = (Persona)CharacterInstance;
+            Persona Target = (Persona)TargetInstance;
+
+            #region Character Logic
+
+            physicalDamage = damageObject.DamageValue;
+            damageObject.DamageTrait= DamageObject.DamageVersion.Physical;
+            markedda = Character.MarkedDeBuffPerent;
+            if (Character.PolishWeapon() == true) physicalDamage += (int)(physicalDamage * Character.PowerBuffPercent);// this is to work the polish buff
+            if (Character.Weakg == true) physicalDamage -= (int)(physicalDamage * Character.WeakGripDeBuffPercent);
+            if (Character.calmState == true) physicalDamage -= (int)(physicalDamage * Character.CalmDeBuffPercent);
+
+            #endregion
+            #region Target Logic
+
+            Target.AttackSponser = Character;
+            if (Target.ProtectionSponser != null) Target = (Persona)Target.ProtectionSponser;
+            if (Target.markedg == true) physicalDamage += (int)(physicalDamage * markedda);
+            if (Target.BlockState == true)
+            {
+                physicalDamage = 0;
+                Target.BlockState = false;
+                //blocking animation
+            }
+
+            shieldcache = Target.shield;
+            armourcahe = Target.Armour;
+            shieldcache -= physicalDamage; Target.shield -= physicalDamage;//this will make shield=0 if the physical damage is too much
+            //the code below ensures that the sheild is removed first
+            if (shieldcache < 0)//this asks if there is no more sheild left
+            {
+                armourcahe += shieldcache;// here the negative value adds with the positive- following negative number addition laws i hope
+                if (armourcahe < 0)//this asks if there is no more armour left
+                {
+                    Target.Armour = 0; // this makes sure armour is zero
+                    damageObject.DamageValue = Math.Abs(armourcahe);
+                    Character.TrueDamage(Target, damageObject); //This removes the health of the target
+                }
+                else { Target.Armour = armourcahe; }
+            }
+            else
+            {
+                Target.shield = shieldcache;
+            }
+
+            #endregion
+
+        }
         public void MagicalDamage(object CharacterInstance, object TargetInstance, int amount)
         {
             int magicalDamage = 0;
