@@ -245,7 +245,7 @@ namespace Assets.Scripts.Entities.Character
         public bool calmState { get; set; }
 
         #endregion
-        #region Attack Percent
+       #region Attack Percent
 
         //These below have to be int cause they are used as in the Random method Random.Next()
         public int DrainPercent { get; set; }
@@ -416,7 +416,7 @@ namespace Assets.Scripts.Entities.Character
             {
                 Target.shield = shieldcache;
             }
-
+            Target.ProtectionSponser = null;
             #endregion
 
         }
@@ -471,7 +471,56 @@ namespace Assets.Scripts.Entities.Character
             {
                 Target.shield = shieldcache;
             }
+            Target.ProtectionSponser = null;
+            #endregion
 
+        }// this is so someone can put a tailored value
+        public void MagicalDamage(object CharacterInstance, object TargetInstance)
+        {
+            int magicalDamage = 0;
+            int shieldcache = 0;
+            int magrescache = 0;
+            double markedda = 0;
+
+            Persona Character = (Persona)CharacterInstance;
+            Persona Target = (Persona)TargetInstance;
+            DamageObject hitval = new DamageObject();
+            hitval.DamageTrait = DamageObject.DamageVersion.Magical;
+
+            #region Character Logic
+
+            magicalDamage = Character.DamageGiven();
+            markedda = Character.MarkedDeBuffPerent;
+            if (Character.Chosen() == true) magicalDamage += (int)(magicalDamage * Character.MagiBuffPercent);
+            if (Character.exiledg == true) magicalDamage -= (int)(magicalDamage * Character.ExiledDeBuffPercent);
+            if (Character.calmState == true) magicalDamage -= (int)(magicalDamage * Character.CalmDeBuffPercent);
+            #endregion
+            #region Target Logic
+
+            Target.AttackSponser = Character; //for Onguard()
+            shieldcache = Target.shield;
+            magrescache = Target.MagicRes;
+            if (Target.ImmuneState == true) magicalDamage = 0;
+            shieldcache -= magicalDamage; Target.shield -= magicalDamage;
+            if (Target.ProtectionSponser != null) Target = (Persona)Target.ProtectionSponser;
+            if (Target.markedg == true) magicalDamage += (int)(magicalDamage * markedda);
+
+            if (shieldcache < 0)//this asks if there is no more sheild left
+            {
+                magrescache += shieldcache;// here the negative value adds with the positive- following negative number addition laws i hope
+                if (magrescache < 0)//this asks if there is no more resistance left
+                {
+                    Target.MagicRes = 0;
+                    hitval.DamageValue = Math.Abs(magrescache);
+                    Character.TrueDamage(Target, hitval); //This removes the health of the target
+                }
+                else { Target.MagicRes = magrescache; }
+            }
+            else
+            {
+                Target.shield = shieldcache;
+            }
+            Target.ProtectionSponser = null;
             #endregion
 
         }
@@ -520,7 +569,7 @@ namespace Assets.Scripts.Entities.Character
             {
                 Target.shield = shieldcache;
             }
-
+            Target.ProtectionSponser = null;
             #endregion
 
         }
@@ -561,26 +610,38 @@ namespace Assets.Scripts.Entities.Character
             else { if (RoundOver == true) PhysicalDamage(CharacterInstance, TargetInstance); }
             
         }
-        public void Blight(object CharacterInstance, object TargetInstance, int amount)
+        public void Blight(object CharacterInstance, object TargetInstance, int amountOfRounds, int amountOfDamage)
         {
-            int count = 1;
             Persona Character = (Persona)CharacterInstance;
             Persona Target = (Persona)TargetInstance;
-            Character.BlightAmount = amount;
-            if (RoundOver == false)
+
+            int countofroundsineffect = 0;
+            int Numberroun = RoundInfo.RoundsPassed;
+
+            Timer Choisss;
+            Choisss = new Timer();
+            // Tell the timer what to do when it elapses
+            Choisss.Elapsed += new ElapsedEventHandler(Maaama);
+            // Set it to go off every one seconds
+            Choisss.Interval = 1000;
+            // And start it        
+            Choisss.Enabled = true;
+            void Maaama(object source2, ElapsedEventArgs e)
             {
-                while (count == 1)
+                if (RoundInfo.RoundsPassed > Numberroun)
                 {
+
+                    Numberroun = RoundInfo.RoundsPassed;
+                    countofroundsineffect++;
                     if (Target.ImmuneState == true)
                     { }
                     else
                     {
-                        MagicalDamage(CharacterInstance, TargetInstance, amount);
+                        MagicalDamage(CharacterInstance, TargetInstance, amountOfDamage);
                     }
                 }
-                count--;
+                if (countofroundsineffect >= amountOfRounds) Choisss.Close();
             }
-            else count++;
             /*
              * Persona Character=(Persona)CharacterInstance;
              * Character.blightNumberofrounds=4;
@@ -652,7 +713,7 @@ namespace Assets.Scripts.Entities.Character
             {
                 Target.shield = shieldcache; //this shouldn't be here at all but imleaving it here just in case
             }
-
+            Target.ProtectionSponser = null;
             #endregion
 
         }
@@ -669,26 +730,35 @@ namespace Assets.Scripts.Entities.Character
             Target.AttackSponser = Character;// I have doubts that this should be here
 
             markedda = Character.MarkedDeBuffPerent;
-            int count = 1;
-            if (RoundOver == false)
+            int roundhaspassed = 0;
+            Timer Scar;
+            Scar = new Timer();
+            // Tell the timer what to do when it elapses
+            Scar.Elapsed += new ElapsedEventHandler(Scarer);
+            // Set it to go off every one seconds
+            Scar.Interval = 1000;
+            // And start it        
+            Scar.Enabled = true;
+            
+            roundhaspassed = RoundInfo.RoundsPassed;
+            //this is supposed to add to a list up to 5, of the last person to cause you damage. Its called in the constructor and hopefully runs the whole time. 
+
+            void Scarer(object source2, ElapsedEventArgs e)
             {
-                while (count == 1)
+                if(RoundInfo.RoundsPassed<roundhaspassed+1)
                 {
                     Random r = new Random();
                     if (Target.ProtectionSponser != null) Target = (Persona)Target.ProtectionSponser;
-                    if (Target.markedg == true) randamage += (int)(randamage * markedda);
                     randamage = r.Next(1, Character.CursePercent);
                     if (Target.markedg == true) randamage += (int)(randamage * markedda);
                     if (Target.ImmuneState == true)
                     { }
                     else
                     {
-                        Target.HealthLoss(randamage);
+                        Character.MagicalDamage(Character, Target, randamage);
                     }
                 }
-                count--;
             }
-            else count++;
         }
 
         public bool Feign(object CharacterInstance, object TargetInstance)

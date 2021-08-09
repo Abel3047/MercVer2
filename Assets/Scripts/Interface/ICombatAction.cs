@@ -30,12 +30,14 @@ namespace Assets.Scripts.Interface
         #region Attack
 
         void PhysicalDamage(object CharacterInstance, object TargetInstance);
+        void PhysicalDamage(object CharacterInstance, object TargetInstance, DamageObject damageObject);
+        void MagicalDamage(object CharacterInstance, object TargetInstance);
         void MagicalDamage(object CharacterInstance, object TargetInstance, int amount); //This was given amont because in a few cards the amount actually changes by an specfic number
         void TrueDamage(object TargetInstance, DamageObject DamageObj);
         void Drain(object CharacterInstance, object TargetInstance);
         void Ignite(object CharacterInstance, object TargetInstance, int amount);// Ignite and blight have amount cause the use MAical damage
         void Bleed(object CharacterInstance, object TargetInstance);
-        void Blight(object CharacterInstance, object TargetInstance,int amount);
+        void Blight(object CharacterInstance, object TargetInstance,int amountOfRounds, int amountOfDamage);
         void BalancedDamage(object CharacterInstance, object TargetInstance);
         void Curse(object CharacterInstance, object TargetInstance);
         bool Feign(object CharacterInstance, object TargetInstance);

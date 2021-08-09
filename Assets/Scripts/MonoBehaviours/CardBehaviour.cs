@@ -28,25 +28,112 @@ public class CardBehaviour : Card
         switch (cardname)
         {
             case cardName.lionFirstCard:
+                int lionBalls = Target.Health;
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                if (Target.Health < lionBalls) lionBalls -= Target.Health;
+                CharacterInstance.ShieldUp(CharacterInstance, (int)(lionBalls * 0.3));
+                foreach (var item in CharacterInstance.Allies)
+                {
+                    CharacterInstance.ShieldUp(item, (int)(lionBalls * 0.05));
+                }
                 break;
             case cardName.lionSecondCard:
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target); CharacterInstance.PowerBuffPercent = 0.3;
+                CharacterInstance.PolishWeapon();
                 break;
             case cardName.lionThirdCard:
+                int lionBalls2 = Target.Health;
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                if (Target.Health < lionBalls2) lionBalls2 -= Target.Health;
+                CharacterInstance.MagicRes += (int)(lionBalls2 * 0.1); CharacterInstance.Armour+= (int)(lionBalls2 * 0.1);
                 break;
             case cardName.lionFourthCard:
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                bool done = false; int heaCache=0; int dog=0; int spit = 0; int crrr = 0; int Maga = 0; int Love = 0; int bass = 0; int acc = 0;
+
+                Timer Nexttime;
+                Nexttime = new Timer();
+                // Tell the timer what to do when it elapses
+                Nexttime.Elapsed += new ElapsedEventHandler(totaldramaIsland);
+                // Set it to go off every one seconds
+                Nexttime.Interval = 1000;
+                // And start it        
+                Nexttime.Enabled = true;
+                foreach (var item in CharacterInstance.Allies)
+                {
+                    Persona fried = (Persona)item;
+                    heaCache = (int)(fried.Health * 0.05); fried.Health += heaCache;
+                    fried.dodge += dog=(int)(fried.dodge * 0.05);
+                    fried.Speed += spit=(int)(fried.Speed * 0.05);
+                    fried.CritC += crrr=(int)(fried.CritC * 0.05);
+                    fried.MagicRes += Maga=(int)(fried.MagicRes * 0.05);
+                    fried.Armour += Love=(int)(fried.Armour * 0.05);
+                    fried.shield += bass=(int)(fried.shield * 0.05);
+                    fried.Accuracy += acc=(int)(fried.Accuracy * 0.05);
+                }
+                void totaldramaIsland(object source2, ElapsedEventArgs e)
+                {
+                    if (RoundInfo.RoundDone == true)
+                    { done = true;  Nexttime.Close(); }
+                    if(done==true)
+                    {
+                        foreach (var item in CharacterInstance.Allies)
+                        {
+                            Persona fried = (Persona)item;
+                            fried.Health -= heaCache;
+                            fried.dodge -= dog;
+                            fried.Speed -= spit;
+                            fried.CritC -= crrr;
+                            fried.MagicRes -= Maga;
+                            fried.Armour -= Love;
+                            fried.shield -= bass;
+                            fried.Accuracy -= acc;
+                        }
+                    }
+                }
                 break;
             case cardName.lionFifthCard:
                 break;
             case cardName.lionSixthCard:
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                int stunnedNumber = 0;
+                if ((Target.Health / CharacterInstance.Health) < 0.80) CharacterInstance.Stun(CharacterInstance, Target);
+                if((Target.Health / CharacterInstance.Health) < 0.5)
+                {
+                    foreach (var item in CharacterInstance.Enemies)
+                    {
+                        CharacterInstance.Stun(CharacterInstance, item);
+                        if (true/*Item.stunned==true*/) stunnedNumber++; //we dont know if the person is stunned or not
+                    }
+                    CharacterInstance.shield += (int)(CharacterInstance.shield * 0.1 * stunnedNumber);
+                }
                 break;
             case cardName.lionSeventhCard:
+                int heaCache2 = 0; int dog2 = 0; int spit2= 0; int crrr2 = 0; int Maga2 = 0; int Lov2e = 0; int bass2 = 0; int acc2 = 0;
+                foreach (var item in CharacterInstance.Enemies)
+                {
+                    Persona fried = (Persona)item;
+                    fried.Health -= heaCache2= (int)(fried.Health * 0.05);
+                    fried.dodge -= dog2 = (int)(fried.dodge * 0.05);
+                    fried.Speed -= spit2 = (int)(fried.Speed * 0.05);
+                    fried.CritC -= crrr2 = (int)(fried.CritC * 0.05);
+                    fried.MagicRes -= Maga2 = (int)(fried.MagicRes * 0.05);
+                    fried.Armour -= Lov2e = (int)(fried.Armour * 0.05);
+                    fried.shield -= bass2 = (int)(fried.shield * 0.05);
+                    fried.Accuracy -= acc2 = (int)(fried.Accuracy * 0.05);
+                    CharacterInstance.PowerBuffPercent = 0.1;
+                    CharacterInstance.PolishWeapon();
+                }
                 break;
             case cardName.lionEighthCard:
                 break;
             case cardName.lionNinthCard:
                 break;
             case cardName.crocodileFirstCard:
-                CharacterInstance.TrueDamage(Target, damageObject);
+                int ver = Target.Health;
+                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                int beryt = ver - Target.Health;
+                if (beryt > 0) CharacterInstance.Health += beryt;
                 break;
             case cardName.crocodileSecondCard:
                 int enemyindexCount = CharacterInstance.Enemies.Count;
@@ -64,12 +151,11 @@ public class CardBehaviour : Card
                 CharacterInstance.BreakArmour(Target, (int)(Target.Armour* 0.5));
                 break;
             case cardName.crocodileFourthCard:
+                damageObject.DamageValue = CharacterInstance.DamageGiven();
+                CharacterInstance.TrueDamage(Target, damageObject);
                 break;
             case cardName.crocodileFifthCard:
-                int ver = Target.Health;
-                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
-                int beryt = ver - Target.Health;
-                if (beryt > 0) CharacterInstance.Health += beryt;
+                
                 break;
             case cardName.crocodileSixthCard:
                 CharacterInstance.Bleed(CharacterInstance, Target);
@@ -84,6 +170,14 @@ public class CardBehaviour : Card
                 }
                 break;
             case cardName.crocodileEighthCard:
+                damageObject.DamageValue = (int)(CharacterInstance.DamageGiven() * 0.4);
+                int heCache = 0;
+                foreach (var item in CharacterInstance.Enemies)
+                {
+                    CharacterInstance.TrueDamage(item, damageObject);
+                    heCache += damageObject.DamageValue;
+                }
+                CharacterInstance.Health += heCache;
                 break;
             case cardName.crocodileNinthCard:
                 CharacterInstance.Speed += CharacterInstance.Speed;
@@ -95,7 +189,7 @@ public class CardBehaviour : Card
                 CharacterInstance.PhysicalDamage(CharacterInstance, Target);
                 break;
             case cardName.fishThirdCard:
-                if (Target.Health<(CharacterInstance.Health*0.85))
+                if ((Target.Health/ CharacterInstance.Health) <=0.85)
                 {
                     int stored = Target.Health;
                     CharacterInstance.PhysicalDamage(CharacterInstance, TargetInstance);
@@ -149,6 +243,8 @@ public class CardBehaviour : Card
                 object aallss = CharacterInstance.Enemies[cond];
                 CharacterInstance.PhysicalDamage(CharacterInstance, fiaas); CharacterInstance.WeakGrip(CharacterInstance, fiaas);
                 CharacterInstance.PhysicalDamage(CharacterInstance, aallss); CharacterInstance.WeakGrip(CharacterInstance, aallss);
+                WarriorTemplate reee = new();
+                CharacterInstance.Health -= (int)(reee.Health * 0.5); //cause apparently it costs 5% of the max health which i assume is the health of a warrior
                 break;
             case cardName.salamanderFifthCard:
                 break;
@@ -184,13 +280,12 @@ public class CardBehaviour : Card
             case cardName.salamanderEighthCard:
                 break;
             case cardName.salamanderNinthCard:
-                CharacterInstance.WeakGripDeBuffPercent = 0.5;
-                CharacterInstance.Weakg = true;
+                damageObject.DamageValue = CharacterInstance.DamageGiven() / 2;
                 int eCount3 = CharacterInstance.Enemies.Count;
                 int digaoogaoo = UnityEngine.Random.Range(1, eCount3); int diguyy = UnityEngine.Random.Range(1, eCount3); //random index of the enemy
                 Persona firthealth = (Persona)CharacterInstance.Enemies[digaoogaoo]; Persona sechealths= (Persona)CharacterInstance.Enemies[diguyy];
-                CharacterInstance.PhysicalDamage(CharacterInstance, firthealth); CharacterInstance.PhysicalDamage(CharacterInstance, sechealths);
-                CharacterInstance.Weakg = false;
+                CharacterInstance.PhysicalDamage(CharacterInstance, firthealth, damageObject); CharacterInstance.PhysicalDamage(CharacterInstance, sechealths, damageObject);
+                CharacterInstance.WeakGrip(CharacterInstance, firthealth); CharacterInstance.WeakGrip(CharacterInstance, sechealths);
                 break;
             case cardName.frogFirstCard:
                 float bacon = UnityEngine.Random.Range(1, 101);
@@ -231,13 +326,13 @@ public class CardBehaviour : Card
                 }
                 break;
             case cardName.frogFourthCard:
-                CharacterInstance.Blight(CharacterInstance, TargetInstance, CharacterInstance.DamageGiven()); //has to be discussed with yewo
+                CharacterInstance.Blight(CharacterInstance, TargetInstance, 4, CharacterInstance.DamageGiven());
                 break;
             case cardName.frogFifthCard:
                 object firstgrudge = CharacterInstance.RevengeDa.IndexOf(3);
                 object Secondgrudge = CharacterInstance.RevengeDa.IndexOf(4);
-                CharacterInstance.Stun(CharacterInstance, firstgrudge); CharacterInstance.MagicalDamage(CharacterInstance, firstgrudge,CharacterInstance.DamageGiven());
-                CharacterInstance.Stun(CharacterInstance, Secondgrudge); CharacterInstance.MagicalDamage(CharacterInstance, Secondgrudge, CharacterInstance.DamageGiven());
+                CharacterInstance.Stun(CharacterInstance, firstgrudge); CharacterInstance.MagicalDamage(CharacterInstance, firstgrudge);
+                CharacterInstance.Stun(CharacterInstance, Secondgrudge); CharacterInstance.MagicalDamage(CharacterInstance, Secondgrudge);
                 break;
             case cardName.frogSixthCard:
                 break;
@@ -247,6 +342,7 @@ public class CardBehaviour : Card
                 CharacterInstance.Stun(CharacterInstance, fgrudge);
                 CharacterInstance.Stun(CharacterInstance, Sgrudge);
                 CharacterInstance.PutArmour(CharacterInstance, (int)(CharacterInstance.Armour * 0.1));
+                CharacterInstance.Blight(CharacterInstance, Target, 2, CharacterInstance.DamageGiven());
                 break;
             case cardName.frogEighthCard:
                 break;
@@ -264,7 +360,7 @@ public class CardBehaviour : Card
                     totalEnemyHealth += enemy.Health;
                 }
                 totalEnemyHealth = (int)(totalEnemyHealth * 0.1);
-                CharacterInstance.Blight(CharacterInstance, lowestenemy, totalEnemyHealth);
+                CharacterInstance.Blight(CharacterInstance, lowestenemy, 3,totalEnemyHealth);
                 break;
             case cardName.tritonFirstCard:
                 int war=0;
@@ -284,7 +380,10 @@ public class CardBehaviour : Card
                 break;
             case cardName.tritonThirdCard:
                 if (CharacterInstance.shield > 0)
-                { CharacterInstance.PhysicalDamage(CharacterInstance, Target); CharacterInstance.PhysicalDamage(CharacterInstance, Target); }
+                {
+                    CharacterInstance.PowerBuffPercent = 2; CharacterInstance.PolishWeapon();
+                    CharacterInstance.PhysicalDamage(CharacterInstance, Target);
+                }
                 else { CharacterInstance.PhysicalDamage(CharacterInstance, Target); }
                 break;
             case cardName.tritonFourthCard:
@@ -292,8 +391,8 @@ public class CardBehaviour : Card
                 CharacterInstance.Provoking(CharacterInstance);
                 break;
             case cardName.tritonFifthCard:
-                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
                 if (CharacterInstance.shield <= 0) CharacterInstance.ShieldUp(CharacterInstance,(int)(CharacterInstance.Health*0.15));
+                else { CharacterInstance.PhysicalDamage(CharacterInstance, Target); }
                 break;
             case cardName.tritonSixthCard:
                 CharacterInstance.PhysicalDamage(CharacterInstance, Target);
@@ -313,7 +412,7 @@ public class CardBehaviour : Card
                 myr2.Enabled = true;
                 void myEt(object source2, ElapsedEventArgs e)
                 {
-                    if (RoundInfo.RoundsPassed == (nextRoundmaybe + 1))
+                    if (RoundInfo.RoundsPassed == (nextRoundmaybe + 1))//basically checks if the round has passed
                     {
                         collectiveesscence -= CharacterInstance.Health + CharacterInstance.shield + CharacterInstance.Armour;
                         damageObject.DamageValue = collectiveesscence;
@@ -325,19 +424,24 @@ public class CardBehaviour : Card
                
                 break;
             case cardName.tritonEighthCard:
-                CharacterInstance.PhysicalDamage(CharacterInstance, Target);
-                if (CharacterInstance.shield <= 0) CharacterInstance.ShieldUp(CharacterInstance, (int)(CharacterInstance.shield * 0.2));
+                TankWarriorTemplate trr = new();
+                if (CharacterInstance.shield <= 0) CharacterInstance.ShieldUp(CharacterInstance, (int)(trr.shield * 0.2));
                 if(CharacterInstance.shield >0)
                 {
                     int geeer = CharacterInstance.shield;
-                    CharacterInstance.shield -= geeer;
+                    CharacterInstance.shield -= geeer; //removes all shield
                     damageObject.DamageValue = geeer;
                     CharacterInstance.PhysicalDamage(CharacterInstance, Target, damageObject);
                 }
                 break;
             case cardName.tritonNinthCard:
                 CharacterInstance.shield += CharacterInstance.shield;
-                int enemycount = CharacterInstance.Enemies.Count;
+                int enemycount = 0;
+                foreach (var item in CharacterInstance.Enemies)
+                {
+                    Persona i = (Persona)item;
+                    if (i.Health > 0) enemycount++;
+                }
                 CharacterInstance.shield += (int)(CharacterInstance.shield*0.1*enemycount);
                 break;
             default:
