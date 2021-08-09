@@ -49,7 +49,7 @@ namespace Assets.Scripts.Interface
         void ShieldUp(object TargetInstance, int amount);
         void Purified(object TargetInstance);
         void Block(object TargetInstance);
-        void Immune(object TargetInstance);
+        void Immune(object TargetInstance, int amountOfRounds);
 
         #endregion
 

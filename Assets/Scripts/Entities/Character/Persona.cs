@@ -50,7 +50,6 @@ namespace Assets.Scripts.Entities.Character
             Frog,
             Triton
         };
-        public static bool RoundOver { get; set; }
         bool RemoveDebuffEffects { get; set; }
 
         #endregion
@@ -187,7 +186,7 @@ namespace Assets.Scripts.Entities.Character
             get { return ExpPoints; }
             set
             {
-                if (RoundOver == true/*This means characters can level up durning battle*/)
+                if (RoundInfo.RoundDone == true/*This means characters can level up durning battle*/)
                 {
                     Instance.ExpPoints += NewEarnedXp;
                 }
@@ -219,7 +218,7 @@ namespace Assets.Scripts.Entities.Character
             get { return EarnedXp; }
             set
             {
-                if (RoundOver == false/*This means characters can level up durning battle*/)
+                if (RoundInfo.RoundDone == false/*This means characters can level up durning battle*/)
                 {
                     EarnedXp = false;
                 }
@@ -245,7 +244,7 @@ namespace Assets.Scripts.Entities.Character
         public bool calmState { get; set; }
 
         #endregion
-       #region Attack Percent
+        #region Attack Percent
 
         //These below have to be int cause they are used as in the Random method Random.Next()
         public int DrainPercent { get; set; }
@@ -255,7 +254,6 @@ namespace Assets.Scripts.Entities.Character
         #endregion
         #region Defend Percent
 
-        public int ImmuneRoundNumber { get { return ImmuneRoundNumber; } set { ImmuneRoundNumber = 0; } }
         public bool ImmuneState { get; set; }
         public bool BlockState { get; set; }
 
@@ -588,9 +586,13 @@ namespace Assets.Scripts.Entities.Character
         public void Ignite(object CharacterInstance, object TargetInstance, int amount)
         {
             Persona Target = (Persona)TargetInstance;
-            bool howmany = RoundOver;
+            bool howmany = RoundInfo.RoundDone;
             int count = 0;
-            if (howmany != RoundOver) count++; howmany = RoundOver;
+            if (howmany != RoundInfo.RoundDone)
+            { 
+                count++; 
+                howmany = RoundInfo.RoundDone;
+            }
             if (count == 2)
             {
                 if (Target.ImmuneState == true)
@@ -607,7 +609,7 @@ namespace Assets.Scripts.Entities.Character
             Persona Target = (Persona)TargetInstance;
             if (Target.ImmuneState == true)
             { }
-            else { if (RoundOver == true) PhysicalDamage(CharacterInstance, TargetInstance); }
+            else { if (RoundInfo.RoundDone == true) PhysicalDamage(CharacterInstance, TargetInstance); }
             
         }
         public void Blight(object CharacterInstance, object TargetInstance, int amountOfRounds, int amountOfDamage)
@@ -642,21 +644,6 @@ namespace Assets.Scripts.Entities.Character
                 }
                 if (countofroundsineffect >= amountOfRounds) Choisss.Close();
             }
-            /*
-             * Persona Character=(Persona)CharacterInstance;
-             * Character.blightNumberofrounds=4;
-             * Make sure here that you add a event handler that checks
-             * int count= RoundInfo.RoundsPassed-blightRoundNumber
-             for (int i = 0; i <count ; i++)
-            {
-            if (Target.ImmuneState == true)
-                    { }
-                    else
-                    {
-                        MagicalDamage(CharacterInstance, TargetInstance);
-                    }
-            }
-             */
         }
         public void BalancedDamage(object CharacterInstance, object TargetInstance)
         {
@@ -788,7 +775,7 @@ namespace Assets.Scripts.Entities.Character
         {
             Persona Target = (Persona)TargetInstance;
             //After the methodds that do te things
-            while (RoundOver==false/*This is supposed to be while the Game session is continuing*/)
+            while (RoundInfo.GameInSession == true)
             {
                 Target.RemoveDebuffEffects = true;
             }
@@ -798,16 +785,40 @@ namespace Assets.Scripts.Entities.Character
             Persona Target = (Persona)TargetInstance;
             Target.BlockState = true;
         }
-        public void Immune(object TargetInstance)
+        public void Immune(object TargetInstance, int amountOfRounds)
         {
             Persona Target = (Persona)TargetInstance;
-            while (Target.ImmuneRoundNumber != 0)
-            {
-                Revigorate(Target);
-                Block(Target);
-                Target.ImmuneState = true;
-            }
+            int gegege= RoundInfo.RoundsPassed;
+            int creep = 0;
+            creep = amountOfRounds;
             Target.ImmuneState = false;
+            Timer Nivana;
+            Nivana = new Timer();
+            // Tell the timer what to do when it elapses
+            Nivana.Elapsed += new ElapsedEventHandler(HeartShapedBox);
+            // Set it to go off every one seconds
+            Nivana.Interval = 1000;
+            // And start it        
+            Nivana.Enabled = true;
+
+            void HeartShapedBox(object source2, ElapsedEventArgs e)
+            {
+                if (gegege!= RoundInfo.RoundsPassed)
+                {
+                    gegege = RoundInfo.RoundsPassed;
+                    if (creep != 0)
+                    {
+                        Revigorate(Target);
+                        Block(Target);
+                        Target.ImmuneState = true;
+                        creep--;
+                    }
+                    else
+                    {
+                        Nivana.Close();
+                    }
+                }
+            }
         }
 
         #endregion
@@ -822,12 +833,12 @@ namespace Assets.Scripts.Entities.Character
             agileCache = (int)(Character.dodge * Character.AgileBUffPercent);
             Character.dodge += agileCache;
             agileCache = -agileCache;
-            if (RoundOver == true) Character.dodge += agileCache;
+            if (RoundInfo.RoundDone == true) Character.dodge += agileCache;
         }
         public bool PolishWeapon()
         {
             bool polishWeapon;
-            if (RoundOver == true) polishWeapon = false;
+            if (RoundInfo.RoundDone == true) polishWeapon = false;
             else { polishWeapon = true; }
 
             return polishWeapon;
@@ -835,7 +846,7 @@ namespace Assets.Scripts.Entities.Character
         public bool Chosen()
         {
             bool chosen;
-            if (RoundOver == true) chosen = false;
+            if (RoundInfo.RoundDone == true) chosen = false;
             else { chosen = true; }
 
             return chosen;
@@ -843,7 +854,7 @@ namespace Assets.Scripts.Entities.Character
         public bool Aware()
         {
             bool Aware;
-            if (RoundOver == true) Aware = false;
+            if (RoundInfo.RoundDone == true) Aware = false;
             else { Aware = true; }
 
             return Aware;
@@ -868,7 +879,7 @@ namespace Assets.Scripts.Entities.Character
 
             void myEvent(object source2, ElapsedEventArgs e) //this checks if the characterInstance.health changes
             {
-                while (RoundOver == false)
+                while (RoundInfo.RoundDone == false)
                 {
                     standbyhealth = Character.Health;
                     damage1 = (int)(Character.DamageGiven() * Character.counterAttackPercent);
@@ -881,7 +892,7 @@ namespace Assets.Scripts.Entities.Character
             }
             else
             {
-                if ((storedhealth != standbyhealth) && (RoundOver = true)) //if the health changes and the round finished
+                if ((storedhealth != standbyhealth) && (RoundInfo.RoundDone = true)) //if the health changes and the round finished
                 {
                     Target.PhysicalDamage(Target, Target.AttackSponser); //This is to attack the person who hit him
                     Target.AttackSponser = null;
@@ -909,7 +920,7 @@ namespace Assets.Scripts.Entities.Character
             Persona Target = (Persona)TargetInstance;
 
             Target.ProtectionSponser = Character;
-            if (RoundOver == true) Target.ProtectionSponser = null;
+            if (RoundInfo.RoundDone == true) Target.ProtectionSponser = null;
         }
         public object Protected(object TargetInstance)// this is to return the protector
         {
